@@ -1,10 +1,11 @@
-
-
+from random import randint 
 def printBoard(boardArray): #prints the current board
-	print(gameBoard[1]+' | '+gameBoard[2]+' | '+gameBoard[3])
-	print(gameBoard[4]+' | '+gameBoard[5]+' | '+gameBoard[6])
-	print(gameBoard[7]+' | '+gameBoard[8]+' | '+gameBoard[9])
+	i=1
+	while i < 10:
+		print(gameBoard[i]+' | '+gameBoard[i+1]+' | '+gameBoard[i+2])
+		i+=3
 	print("")
+
 
 def turnPlay(playerMarker,boardArray): #represents one turn
 	while True: #use a loop here to insure continuous prompting until proper input
@@ -23,9 +24,17 @@ def turnPlay(playerMarker,boardArray): #represents one turn
 	print("")
 	if checkWin(boardArray): #check if winner and declare it
 		printBoard(gameBoard)
-		print(f"{turnOrder[(turnCounter)%2+1][0]} has won!\n")
+		print(f"{turnOrder[(turnCounter)%2+1][0]} has won! :) \n")
 
-def checkWin(b): #checks if there is a winner; b = boardarray (gameBoard) 
+def compTurn(playerMarker, boardArray):
+
+	location = str(remainingPlaces[randint(0,len(remainingPlaces))])
+	gameBoard[int(location)] = playerMarker
+	if checkWin(boardArray): #check if winner and declare it
+		printBoard(gameBoard)
+		print(f"{turnOrder[(turnCounter)%2+1][0]} has won! :) \n")
+
+def checkWin(b): #checks if there is a winner; b = boardarray (gameBoard)
 	return((b[1]==b[2]) and (b[2]==b[3]) or #top
 		(b[4]==b[5]) and (b[5]==b[6]) or #mid horizontal
 		(b[7]==b[8]) and (b[8]==b[9]) or #bottom
@@ -35,28 +44,47 @@ def checkWin(b): #checks if there is a winner; b = boardarray (gameBoard)
 		(b[1]==b[5]) and (b[5]==b[9]) or #diagonal from upper left
 		(b[3]==b[5]) and (b[5]==b[7])) #diagonal from upper right
 
+def playerOrder(player1,player2):
+	firstPlayer = randint(1,2)
+	if firstPlayer == 1:
+		return({2:[player1,"X"],1:[player2,"O"]})
+	else:
+		return({2:[player2,"X"],1:[player1,"O"]})
+
 #main game
 print("Welcome to Tic-Tac-Toe!")
-player1 = str(input("Please enter the name of player 1 (marked by 'X')"))
-player2 = str(input("Now, please enter the name of player 2 (marked by 'O')"))
 
 playAgain = ""
 keepSamePlayers = ""
 
 while playAgain != "n": #to loop in case players want another game
+
+	while True:
+		howManyPlayers = input("Please select whether you would like to play with 1 or 2 players\n")
+		if howManyPlayers not in ["1","2"]:
+			print("Please select 1 or 2")
+		else:
+			break
+
+
+
+
+	if keepSamePlayers != "y": #select new players if that option has been selected after a game
+		player1 = input("Please enter the name of player 1\n")
+		player2 = input("Now, please enter the name of player 2\n")
+
 	gameBoard = list(map(str,range(0,10))) #establish gameboard as range between 0-9 (start with 0 to make indexing easier)
 											#convert to str to make printing possible
 	turnCounter = 1
-	
-	if keepSamePlayers == "n": #select new players if that option has been selected after a game
-		player1 = str(input("Please enter the name of player 1 (marked by 'X')"))
-		player2 = str(input("Now, please enter the name of player 2 (marked by 'O')"))
-	
-	turnOrder = {2:[player1,"X"],1:[player2,"O"]}
 
-	while checkWin(gameBoard) == False: #keep turns going until there's a winner 
+	turnOrder = playerOrder(player1,player2)
+
+	print(f"\n{turnOrder[(turnCounter)%2+1][0]} goes first and plays as 'X'\n")
+
+	while checkWin(gameBoard) == False: #keep turns going until there's a winner
 		printBoard(gameBoard)
-		print(f"Turn #{turnCounter}")	
+		remainingPlaces = [num for num in gameBoard if num != "X" and num != "O"]
+		print(f"Turn #{turnCounter}")
 		turnPlay(turnOrder[(turnCounter)%2+1][1],gameBoard)
 		turnCounter +=1
 		if turnCounter > 9: #account for a tie
@@ -65,12 +93,23 @@ while playAgain != "n": #to loop in case players want another game
 			print("")
 			break
 
+		if howManyPlayers == "1":
+			compTurn(turnOrder[(turnCounter)%2+1][1],gameBoard)
+			turnCounter +=1
+
+		if turnCounter > 9: #account for a tie
+			printBoard(gameBoard)
+			print("It's a tie! Game over.")
+			print("")
+			break
+
+
 	while True: #use a loop here to insure continuous prompting until proper input
 		playAgain = input("Play again? y/n \n")
 		if playAgain not in ["y","n"]:
 			print("Please enter 'y' if you would like to play again, or 'n' if you would like to exit\n")
 		elif playAgain == "n":
-			break	
+			break
 		else:
 			while True: #use a loop here to insure continuous prompting until proper input
 				keepSamePlayers = input("Keep same players? y/n\n")
@@ -80,7 +119,6 @@ while playAgain != "n": #to loop in case players want another game
 					break
 			break
 
-
-#maybe select turn order?
-#keep same players?
-#add in AI - or figure out where it goes
+#to do:
+#add functionality for 1 or 2 players
+#create a function for computer turn - first random, then with some rules
